@@ -1,16 +1,45 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Node / Next.js
 node_modules/
 .next/
-.moon/cache/
-.moon/docker/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Only pnpm is used; block other package managers' lockfiles
+package-lock.json
+yarn.lock
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# SQLite (local data)
 *.db
 *.sqlite
-.venv/
-venv/
-.env
-.env.local
-.DS_Store
+apps/api/data/
+
+# Moon
+.moon/cache/
+.moon/docker/
