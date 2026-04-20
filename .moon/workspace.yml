@@ -1,0 +1,12 @@
+$schema: 'https://moonrepo.dev/schemas/workspace.json'
+
+projects:
+  web: 'apps/web'
+  api: 'apps/api'
+
+vcs:
+  manager: 'git'
+  defaultBranch: 'main'
+
+runner:
+  inheritColorsForPipedTasks: true

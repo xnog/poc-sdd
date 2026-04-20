@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.moon/cache/
+.moon/docker/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.db
+*.sqlite
+.venv/
+venv/
+.env
+.env.local
+.DS_Store

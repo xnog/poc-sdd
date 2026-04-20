@@ -1,0 +1,58 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+type: 'application'
+toolchain:
+  default: 'node'
+
+tasks:
+  install:
+    command: 'pnpm install'
+    inputs:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+
+  dev:
+    command: 'pnpm dev'
+    local: true
+    deps:
+      - '~:install'
+
+  build:
+    command: 'pnpm build'
+    inputs:
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'next.config.ts'
+      - 'tsconfig.json'
+      - 'package.json'
+    outputs:
+      - '.next'
+    deps:
+      - '~:install'
+
+  lint:
+    command: 'pnpm lint'
+    inputs:
+      - 'src/**/*'
+      - 'package.json'
+    deps:
+      - '~:install'
+
+  typecheck:
+    command: 'pnpm typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+    deps:
+      - '~:install'
+
+  deploy:
+    command: './deploy.sh'
+    inputs:
+      - 'src/**/*'
+      - 'next.config.ts'
+      - 'package.json'
+      - 'deploy.sh'
+    deps:
+      - '~:build'

@@ -1,0 +1,47 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'python'
+type: 'application'
+
+tasks:
+  install:
+    command: 'pip install -e .[dev]'
+    inputs:
+      - 'pyproject.toml'
+
+  dev:
+    command: 'uvicorn src.main:app --reload --port 8000'
+    local: true
+    deps:
+      - '~:install'
+
+  test:
+    command: 'pytest'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'pyproject.toml'
+    deps:
+      - '~:install'
+
+  lint:
+    command: 'ruff check .'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'pyproject.toml'
+
+  typecheck:
+    command: 'mypy src'
+    inputs:
+      - 'src/**/*'
+      - 'pyproject.toml'
+    deps:
+      - '~:install'
+
+  deploy:
+    command: './deploy.sh'
+    inputs:
+      - 'src/**/*'
+      - 'pyproject.toml'
+      - 'deploy.sh'

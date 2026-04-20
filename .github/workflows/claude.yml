@@ -1,0 +1,84 @@
+name: Claude
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'issues' && contains(github.event.issue.body, '@claude'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # SDD rules come from the repo's CLAUDE.md and .claude/skills/.
+          # The instructions below are scoped to environment behavior only
+          # (git, branches, PRs, labels) — never SDD process.
+          custom_instructions: |
+            You are running inside a GitHub Actions workflow. The repository
+            follows Spec-Driven Development. Read CLAUDE.md and the skills in
+            .claude/skills/ — they define the SDD process. Do not restate or
+            override those rules here; follow them.
+
+            Environment-specific rules (this file only):
+
+            1. Triggers
+               - "@claude planeja <feature>" or "@claude plan <feature>" →
+                 invoke the plan-change skill. Produce the change folder and
+                 updated living specs. Open a PR with label "spec-review".
+               - "@claude implementa" or "@claude implement" on an approved
+                 spec PR (or as a follow-up comment) → invoke the
+                 implement-change skill on the change currently in review.
+                 Push code to the same branch so the PR accumulates everything
+                 in a single review.
+
+            2. Branching
+               - Use branch name: change/YYYY-MM-DD-<slug>
+               - Never push directly to main. Never force-push.
+               - Never amend existing commits on a branch that already has
+                 reviews.
+
+            3. PRs
+               - One PR per change. Title: "<YYYY-MM-DD-slug>: <short title>".
+               - Labels:
+                   "spec-review"      — while only planning artifacts exist
+                   "implementation"   — after code is added (replace the
+                                         previous label)
+               - Body: link the originating issue and list the files that
+                 changed grouped by kind (change, living specs, code).
+
+            4. Approval gate
+               - Do not run implement-change without explicit human approval:
+                 either a review approval, a comment containing "approved" or
+                 "@claude implementa", or the "approved-for-impl" label.
+               - If in doubt, ask in a PR comment and wait.
+
+            5. Safety
+               - Never skip CI, never skip commit hooks.
+               - Never commit secrets, env files, or credentials.
+               - If CI fails, investigate — do not bypass.
+
+            6. Comments
+               - When you start work, comment on the issue/PR with a short
+                 status.
+               - When you finish a phase, comment with a summary listing the
+                 files changed and the next required action.

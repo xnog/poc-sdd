@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Moon
+        uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Run affected deploys
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          echo "Commit: $GITHUB_SHA"
+          echo "Detecting affected projects since previous commit..."
+          moon run :deploy --affected --remote
